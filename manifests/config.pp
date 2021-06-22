@@ -34,6 +34,9 @@ class icingaweb2::config {
   $db_password          = $::icingaweb2::db_password
   $default_domain       = $::icingaweb2::default_domain
 
+  $admin_username       = $::icingaweb2::admin_username
+  $admin_password       = $::icingaweb2::admin_password
+
   $config_backend       = $::icingaweb2::config_backend
   $config_resource      = $::icingaweb2::config_backend ? {
     'ini' => undef,
@@ -144,7 +147,7 @@ class icingaweb2::config {
     }
 
     icingaweb2::config::role { 'default admin user':
-      users       => 'icingaadmin',
+      users       => $admin_username,
       permissions => '*',
     }
 
@@ -162,7 +165,7 @@ class icingaweb2::config {
         }
 
         exec { 'create default user':
-          command     => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password}' '${db_name}' -Ns -e 'INSERT INTO icingaweb_user (name, active, password_hash) VALUES (\"icingaadmin\", 1, \"\$1\$3no6eqZp\$FlcHQDdnxGPqKadmfVcCU.\")'",
+          command     => "echo \"INSERT INTO icingaweb_user (name, active, password_hash) VALUES (\\\"${admin_username}\\\", 1, \\\"`php -r 'echo password_hash(\"${admin_password}\", PASSWORD_DEFAULT);'`\\\")\" | mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password}' '${db_name}' -Ns",
           refreshonly => true,
         }
       }
@@ -176,7 +179,7 @@ class icingaweb2::config {
 
         exec { 'create default user':
           environment => ["PGPASSWORD=${db_password}"],
-          command     => "psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w -c \"INSERT INTO icingaweb_user(name, active, password_hash) VALUES ('icingaadmin', 1, '\\\$1\\\$3no6eqZp\\\$FlcHQDdnxGPqKadmfVcCU.')\"",
+          command     => "echo \"INSERT INTO icingaweb_user (name, active, password_hash) VALUES (\\\"${admin_username}\\\", 1, \\\"`php -r 'echo password_hash(\"${admin_password}\", PASSWORD_DEFAULT);'`\\\")\" | psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w",
           refreshonly => true,
         }
       }

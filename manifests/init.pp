@@ -69,6 +69,14 @@
 #   Password for database access. This parameter is only used if `import_schema` is `true` or
 #   `config_backend` is `db`.
 #
+# [*admin_username*]
+#  Username for initial admin access. This parameter is only used if `import_schema` is `true` or
+#  `config_backend` is `db`.
+#
+# [*admin_password*]
+#  Password for initial admin access. This parameter is only used if `import_schema` is `true` or
+#  `config_backend` is `db`.
+#
 # @param [Enum['ini', 'db']] config_backend
 #   The global Icinga Web 2 preferences can either be stored in a database or in ini files. This parameter can either
 #   be set to `db` or `ini`.
@@ -149,6 +157,8 @@ class icingaweb2 (
   String                                    $db_name             = 'icingaweb2',
   Optional[String]                          $db_username         = undef,
   Optional[String]                          $db_password         = undef,
+  String                                    $admin_username      = 'icingaadmin',
+  String                                    $admin_password      = 'icinga',
   Enum['ini', 'db']                         $config_backend      = 'ini',
   Optional[String]                          $default_domain      = undef,
   Optional[Stdlib::Absolutepath]            $cookie_path         = undef,
