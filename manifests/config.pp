@@ -41,9 +41,10 @@ class icingaweb2::config {
   }
 
   File {
-    mode  => '0660',
-    owner => $conf_user,
-    group => $conf_group
+    mode    => '0660',
+    owner   => $conf_user,
+    group   => $conf_group,
+    require => Group[$conf_group],
   }
 
   Exec {
@@ -58,6 +59,10 @@ class icingaweb2::config {
   file { $logging_file:
     ensure => file,
     mode   => '0640',
+  }
+
+  group { $conf_group:
+    ensure => present,
   }
 
   icingaweb2::inisection { 'config-logging':
@@ -172,12 +177,14 @@ class icingaweb2::config {
           command     => "psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w -f ${pgsql_db_schema}",
           unless      => "psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w -c 'SELECT 1 FROM icingaweb_user'",
           notify      => Exec['create default user'],
+          provider    => shell,
         }
 
         exec { 'create default user':
           environment => ["PGPASSWORD=${db_password}"],
           command     => "psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w -c \"INSERT INTO icingaweb_user(name, active, password_hash) VALUES ('icingaadmin', 1, '\\\$1\\\$3no6eqZp\\\$FlcHQDdnxGPqKadmfVcCU.')\"",
           refreshonly => true,
+          provider    => shell,
         }
       }
       default: {
