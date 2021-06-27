@@ -5,37 +5,38 @@
 #
 class icingaweb2::config {
 
-  $conf_dir             = $::icingaweb2::globals::conf_dir
-  $conf_user            = $::icingaweb2::conf_user
-  $conf_group           = $::icingaweb2::conf_group
+  $conf_dir                = $::icingaweb2::globals::conf_dir
+  $conf_user               = $::icingaweb2::conf_user
+  $conf_group              = $::icingaweb2::conf_group
 
-  $logging              = $::icingaweb2::logging
-  $logging_file         = $::icingaweb2::logging_file
-  $logging_dir          = dirname($::icingaweb2::logging_file)
-  $logging_level        = $::icingaweb2::logging_level
-  $logging_facility     = $::icingaweb2::logging_facility
-  $logging_application  = $::icingaweb2::logging_application
-  $show_stacktraces     = $::icingaweb2::show_stacktraces
-  $module_path          = $::icingaweb2::module_path
+  $logging                 = $::icingaweb2::logging
+  $logging_file            = $::icingaweb2::logging_file
+  $logging_dir             = dirname($::icingaweb2::logging_file)
+  $logging_level           = $::icingaweb2::logging_level
+  $logging_facility        = $::icingaweb2::logging_facility
+  $logging_application     = $::icingaweb2::logging_application
+  $show_stacktraces        = $::icingaweb2::show_stacktraces
+  $module_path             = $::icingaweb2::module_path
 
-  $theme                = $::icingaweb2::theme
-  $theme_disabled       = $::icingaweb2::theme_disabled
+  $theme                   = $::icingaweb2::theme
+  $theme_disabled          = $::icingaweb2::theme_disabled
 
-  $cookie_path          = $::icingaweb2::cookie_path
+  $cookie_path             = $::icingaweb2::cookie_path
 
-  $import_schema        = $::icingaweb2::import_schema
-  $mysql_db_schema      = $::icingaweb2::globals::mysql_db_schema
-  $pgsql_db_schema      = $::icingaweb2::globals::pgsql_db_schema
-  $db_name              = $::icingaweb2::db_name
-  $db_host              = $::icingaweb2::db_host
-  $db_port              = $::icingaweb2::db_port
-  $db_type              = $::icingaweb2::db_type
-  $db_username          = $::icingaweb2::db_username
-  $db_password          = $::icingaweb2::db_password
-  $default_domain       = $::icingaweb2::default_domain
+  $import_schema           = $::icingaweb2::import_schema
+  $mysql_db_schema         = $::icingaweb2::globals::mysql_db_schema
+  $pgsql_db_schema         = $::icingaweb2::globals::pgsql_db_schema
+  $db_name                 = $::icingaweb2::db_name
+  $db_host                 = $::icingaweb2::db_host
+  $db_port                 = $::icingaweb2::db_port
+  $db_type                 = $::icingaweb2::db_type
+  $db_username             = $::icingaweb2::db_username
+  $db_password             = $::icingaweb2::db_password
+  $db_password_unsensitive = if $db_password =~ Sensitive { $db_password.unwrap } else { $db_password }
+  $default_domain          = $::icingaweb2::default_domain
 
-  $config_backend       = $::icingaweb2::config_backend
-  $config_resource      = $::icingaweb2::config_backend ? {
+  $config_backend          = $::icingaweb2::config_backend
+  $config_resource         = $::icingaweb2::config_backend ? {
     'ini' => undef,
     'db'  => "${db_type}-icingaweb2",
   }
@@ -156,26 +157,26 @@ class icingaweb2::config {
     case $db_type {
       'mysql': {
         exec { 'import schema':
-          command => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password}' '${db_name}' < '${mysql_db_schema}'",
-          unless  => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password}' '${db_name}' -Ns -e 'SELECT 1 FROM icingaweb_user'",
+          command => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password_unsensitive}' '${db_name}' < '${mysql_db_schema}'",
+          unless  => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password_unsensitive}' '${db_name}' -Ns -e 'SELECT 1 FROM icingaweb_user'",
           notify  => Exec['create default user'],
         }
 
         exec { 'create default user':
-          command     => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password}' '${db_name}' -Ns -e 'INSERT INTO icingaweb_user (name, active, password_hash) VALUES (\"icingaadmin\", 1, \"\$1\$3no6eqZp\$FlcHQDdnxGPqKadmfVcCU.\")'",
+          command     => "mysql -h '${db_host}' -P '${db_port}' -u '${db_username}' -p'${db_password_unsensitive}' '${db_name}' -Ns -e 'INSERT INTO icingaweb_user (name, active, password_hash) VALUES (\"icingaadmin\", 1, \"\$1\$3no6eqZp\$FlcHQDdnxGPqKadmfVcCU.\")'",
           refreshonly => true,
         }
       }
       'pgsql': {
         exec { 'import schema':
-          environment => ["PGPASSWORD=${db_password}"],
+          environment => ["PGPASSWORD=${db_password_unsensitive}"],
           command     => "psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w -f ${pgsql_db_schema}",
           unless      => "psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w -c 'SELECT 1 FROM icingaweb_user'",
           notify      => Exec['create default user'],
         }
 
         exec { 'create default user':
-          environment => ["PGPASSWORD=${db_password}"],
+          environment => ["PGPASSWORD=${db_password_unsensitive}"],
           command     => "psql -h '${db_host}' -p '${db_port}' -U '${db_username}' -d '${db_name}' -w -c \"INSERT INTO icingaweb_user(name, active, password_hash) VALUES ('icingaadmin', 1, '\\\$1\\\$3no6eqZp\\\$FlcHQDdnxGPqKadmfVcCU.')\"",
           refreshonly => true,
         }

@@ -25,13 +25,13 @@
 # @api private
 #
 define icingaweb2::module::monitoring::commandtransport(
-  String               $commandtransport = $title,
-  Enum['api', 'local'] $transport        = 'api',
-  Stdlib::Host         $host             = 'localhost',
-  Stdlib::Port         $port             = 5665,
-  Optional[String]     $username         = undef,
-  Optional[String]     $password         = undef,
-  Stdlib::Absolutepath $path             = '/var/run/icinga2/cmd/icinga2.cmd',
+  String                                       $commandtransport = $title,
+  Enum['api', 'local']                         $transport        = 'api',
+  Stdlib::Host                                 $host             = 'localhost',
+  Stdlib::Port                                 $port             = 5665,
+  Optional[String]                             $username         = undef,
+  Optional[Variant[String, Sensitive[String]]] $password         = undef,
+  Stdlib::Absolutepath                         $path             = '/var/run/icinga2/cmd/icinga2.cmd',
 ){
 
   $conf_dir        = $::icingaweb2::globals::conf_dir
@@ -44,7 +44,7 @@ define icingaweb2::module::monitoring::commandtransport(
         'host'      => $host,
         'port'      => $port,
         'username'  => $username,
-        'password'  => $password,
+        'password'  => if $password =~ Sensitive { $password.unwrap } else { $password },
       }
     }
     'local': {

@@ -26,13 +26,13 @@
 # @api private
 #
 define icingaweb2::module::elasticsearch::instance(
-  String                           $instance_name      = $title,
-  String                           $uri                = undef,
-  Optional[String]                 $user               = undef,
-  Optional[String]                 $password           = undef,
-  Optional[Stdlib::Absolutepath]   $ca                 = undef,
-  Optional[Stdlib::Absolutepath]   $client_certificate = undef,
-  Optional[Stdlib::Absolutepath]   $client_private_key = undef,
+  String                                       $instance_name      = $title,
+  String                                       $uri                = undef,
+  Optional[String]                             $user               = undef,
+  Optional[Variant[String, Sensitive[String]]] $password           = undef,
+  Optional[Stdlib::Absolutepath]               $ca                 = undef,
+  Optional[Stdlib::Absolutepath]               $client_certificate = undef,
+  Optional[Stdlib::Absolutepath]               $client_private_key = undef,
 ){
 
   assert_private("You're not supposed to use this defined type manually.")
@@ -43,7 +43,7 @@ define icingaweb2::module::elasticsearch::instance(
   $instance_settings = {
     'uri'                => $uri,
     'user'               => $user,
-    'password'           => $password,
+    'password'           => if $password =~ Sensitive { $password.unwrap } else { $password },
     'ca'                 => $ca,
     'client_certificate' => $client_certificate,
     'client_private_key' => $client_private_key,
