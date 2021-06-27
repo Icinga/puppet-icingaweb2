@@ -39,16 +39,16 @@
 #   }
 #
 class icingaweb2::module::graphite(
-  Enum['absent', 'present']      $ensure                                = 'present',
-  String                         $git_repository                        = 'https://github.com/Icinga/icingaweb2-module-graphite.git',
-  Optional[String]               $git_revision                          = undef,
-  Enum['git', 'none', 'package'] $install_method                        = 'git',
-  String                         $package_name                          = 'icingaweb2-module-graphite',
-  Optional[String]               $url                                   = undef,
-  Optional[String]               $user                                  = undef,
-  Optional[String]               $password                              = undef,
-  Optional[String]               $graphite_writer_host_name_template    = undef,
-  Optional[String]               $graphite_writer_service_name_template = undef
+  Enum['absent', 'present']                    $ensure                                = 'present',
+  String                                       $git_repository                        = 'https://github.com/Icinga/icingaweb2-module-graphite.git',
+  Optional[String]                             $git_revision                          = undef,
+  Enum['git', 'none', 'package']               $install_method                        = 'git',
+  String                                       $package_name                          = 'icingaweb2-module-graphite',
+  Optional[String]                             $url                                   = undef,
+  Optional[String]                             $user                                  = undef,
+  Optional[Variant[String, Sensitive[String]]] $password                              = undef,
+  Optional[String]                             $graphite_writer_host_name_template    = undef,
+  Optional[String]                             $graphite_writer_service_name_template = undef
 ){
 
   $conf_dir        = $::icingaweb2::globals::conf_dir
@@ -57,7 +57,7 @@ class icingaweb2::module::graphite(
   $graphite_settings = {
     'url'      => $url,
     'user'     => $user,
-    'password' => $password,
+    'password' => if $password =~ Sensitive { $password.unwrap } else { $password },
   }
 
   $icinga_settings = {

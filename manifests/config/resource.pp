@@ -74,11 +74,11 @@ define icingaweb2::config::resource(
   Optional[Enum['mysql', 'pgsql', 'mssql', 'oci', 'oracle', 'ibm', 'sqlite']]  $db_type         = undef,
   Optional[String]                                                             $db_name         = undef,
   Optional[String]                                                             $db_username     = undef,
-  Optional[String]                                                             $db_password     = undef,
+  Optional[Variant[String, Sensitive[String]]]                                 $db_password     = undef,
   Optional[String]                                                             $db_charset      = undef,
   Optional[String]                                                             $ldap_root_dn    = undef,
   Optional[String]                                                             $ldap_bind_dn    = undef,
-  Optional[String]                                                             $ldap_bind_pw    = undef,
+  Optional[Variant[String, Sensitive[String]]]                                 $ldap_bind_pw    = undef,
   Optional[Enum['none', 'starttls', 'ldaps']]                                  $ldap_encryption = 'none',
   Integer                                                                      $ldap_timeout    = 5,
 ) {
@@ -94,7 +94,7 @@ define icingaweb2::config::resource(
         'port'     => $port,
         'dbname'   => $db_name,
         'username' => $db_username,
-        'password' => $db_password,
+        'password' => if $db_password =~ Sensitive { $db_password.unwrap } else { $db_password },
         'charset'  => $db_charset,
       }
     }
@@ -105,7 +105,7 @@ define icingaweb2::config::resource(
         'port'       => $port,
         'root_dn'    => $ldap_root_dn,
         'bind_dn'    => $ldap_bind_dn,
-        'bind_pw'    => $ldap_bind_pw,
+        'bind_pw'    => if $ldap_bind_pw =~ Sensitive { $ldap_bind_pw.unwrap } else { $ldap_bind_pw },
         'encryption' => $ldap_encryption,
         'timeout'    => $ldap_timeout,
       }

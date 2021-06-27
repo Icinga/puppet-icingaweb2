@@ -75,25 +75,25 @@
 #   }
 #
 class icingaweb2::module::director(
-  Enum['absent', 'present']      $ensure         = 'present',
-  String                         $git_repository = 'https://github.com/Icinga/icingaweb2-module-director.git',
-  Optional[String]               $git_revision   = undef,
-  Enum['git', 'package', 'none'] $install_method = 'git',
-  String                         $package_name   = 'icingaweb2-module-director',
-  Enum['mysql', 'pgsql']         $db_type        = 'mysql',
-  Optional[Stdlib::Host]         $db_host        = undef,
-  Optional[Stdlib::Port]         $db_port        = undef,
-  Optional[String]               $db_name        = undef,
-  Optional[String]               $db_username    = undef,
-  Optional[String]               $db_password    = undef,
-  Optional[String]               $db_charset     = 'utf8',
-  Boolean                        $import_schema  = false,
-  Boolean                        $kickstart      = false,
-  Optional[String]               $endpoint       = undef,
-  Stdlib::Host                   $api_host       = 'localhost',
-  Stdlib::Port                   $api_port       = 5665,
-  Optional[String]               $api_username   = undef,
-  Optional[String]               $api_password   = undef,
+  Enum['absent', 'present']                    $ensure         = 'present',
+  String                                       $git_repository = 'https://github.com/Icinga/icingaweb2-module-director.git',
+  Optional[String]                             $git_revision   = undef,
+  Enum['git', 'package', 'none']               $install_method = 'git',
+  String                                       $package_name   = 'icingaweb2-module-director',
+  Enum['mysql', 'pgsql']                       $db_type        = 'mysql',
+  Optional[Stdlib::Host]                       $db_host        = undef,
+  Optional[Stdlib::Port]                       $db_port        = undef,
+  Optional[String]                             $db_name        = undef,
+  Optional[String]                             $db_username    = undef,
+  Optional[Variant[String, Sensitive[String]]] $db_password    = undef,
+  Optional[String]                             $db_charset     = 'utf8',
+  Boolean                                      $import_schema  = false,
+  Boolean                                      $kickstart      = false,
+  Optional[String]                             $endpoint       = undef,
+  Stdlib::Host                                 $api_host       = 'localhost',
+  Stdlib::Port                                 $api_port       = 5665,
+  Optional[String]                             $api_username   = undef,
+  Optional[Variant[String, Sensitive[String]]] $api_password   = undef,
 ){
   $conf_dir        = $::icingaweb2::globals::conf_dir
   $icingacli_bin   = $::icingaweb2::globals::icingacli_bin
@@ -144,7 +144,7 @@ class icingaweb2::module::director(
             'host'       => $api_host,
             'port'       => $api_port,
             'username'   => $api_username,
-            'password'   => $api_password,
+            'password'   => if $api_password =~ Sensitive { $api_password.unwrap } else { $api_password },
           }
         }
       }

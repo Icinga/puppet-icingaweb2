@@ -56,16 +56,16 @@
 #   }
 #
 class icingaweb2::module::monitoring(
-  Enum['absent', 'present']      $ensure               = 'present',
-  Variant[String, Array[String]] $protected_customvars = ['*pw*', '*pass*', 'community'],
-  Enum['mysql', 'pgsql']         $ido_type             = 'mysql',
-  Optional[Stdlib::Host]         $ido_host             = undef,
-  Stdlib::Port                   $ido_port             = 3306,
-  Optional[String]               $ido_db_name          = undef,
-  Optional[String]               $ido_db_username      = undef,
-  Optional[String]               $ido_db_password      = undef,
-  Optional[String]               $ido_db_charset       = undef,
-  Hash                           $commandtransports    = {},
+  Enum['absent', 'present']                    $ensure               = 'present',
+  Variant[String, Array[String]]               $protected_customvars = ['*pw*', '*pass*', 'community'],
+  Enum['mysql', 'pgsql']                       $ido_type             = 'mysql',
+  Optional[Stdlib::Host]                       $ido_host             = undef,
+  Stdlib::Port                                 $ido_port             = 3306,
+  Optional[String]                             $ido_db_name          = undef,
+  Optional[String]                             $ido_db_username      = undef,
+  Optional[Variant[String, Sensitive[String]]] $ido_db_password      = undef,
+  Optional[String]                             $ido_db_charset       = undef,
+  Hash                                         $commandtransports    = {},
 ){
 
   $conf_dir        = $::icingaweb2::globals::conf_dir
@@ -89,7 +89,7 @@ class icingaweb2::module::monitoring(
     port        => $ido_port,
     db_name     => $ido_db_name,
     db_username => $ido_db_username,
-    db_password => $ido_db_password,
+    db_password => if $ido_db_password =~ Sensitive { $ido_db_password.unwrap } else { $ido_db_password },
     db_charset  => $ido_db_charset,
   }
 

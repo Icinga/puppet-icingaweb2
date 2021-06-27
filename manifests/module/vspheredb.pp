@@ -47,18 +47,18 @@
 #   }
 #
 class icingaweb2::module::vspheredb (
-  Enum['absent', 'present']      $ensure         = 'present',
-  String                         $git_repository = 'https://github.com/Icinga/icingaweb2-module-vspheredb.git',
-  Optional[String]               $git_revision   = undef,
-  Enum['git', 'none', 'package'] $install_method = 'git',
-  String                         $package_name   = 'icingaweb2-module-vspheredb',
-  Enum['mysql']                  $db_type        = 'mysql',
-  Optional[Stdlib::Host]         $db_host        = undef,
-  Stdlib::Port                   $db_port        = 3306,
-  Optional[String]               $db_name        = undef,
-  Optional[String]               $db_username    = undef,
-  Optional[String]               $db_password    = undef,
-  String                         $db_charset     = 'utf8mb4',
+  Enum['absent', 'present']                    $ensure         = 'present',
+  String                                       $git_repository = 'https://github.com/Icinga/icingaweb2-module-vspheredb.git',
+  Optional[String]                             $git_revision   = undef,
+  Enum['git', 'none', 'package']               $install_method = 'git',
+  String                                       $package_name   = 'icingaweb2-module-vspheredb',
+  Enum['mysql']                                $db_type        = 'mysql',
+  Optional[Stdlib::Host]                       $db_host        = undef,
+  Stdlib::Port                                 $db_port        = 3306,
+  Optional[String]                             $db_name        = undef,
+  Optional[String]                             $db_username    = undef,
+  Optional[Variant[String, Sensitive[String]]] $db_password    = undef,
+  String                                       $db_charset     = 'utf8mb4',
 ){
   $conf_dir        = $::icingaweb2::globals::conf_dir
   $module_conf_dir = "${conf_dir}/modules/vspheredb"
@@ -70,7 +70,7 @@ class icingaweb2::module::vspheredb (
     port        => $db_port,
     db_name     => $db_name,
     db_username => $db_username,
-    db_password => $db_password,
+    db_password => if $db_password =~ Sensitive { $db_password.unwrap } else { $db_password },
     db_charset  => $db_charset,
   }
 
