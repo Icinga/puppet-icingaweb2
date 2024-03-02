@@ -94,8 +94,5 @@
     "icinga2",
     "icingaweb2",
     "monitoring"
-  ],
-  "pdk-version": "3.0.0",
-  "template-url": "https://github.com/puppetlabs/pdk-templates#3.0.0",
-  "template-ref": "tags/3.0.0-0-g5bfc1c0"
+  ]
 }

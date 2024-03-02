@@ -1,3 +1,4 @@
+---
 fixtures:
   forge_modules:
     stdlib: "puppetlabs/stdlib"
@@ -8,5 +9,4 @@ fixtures:
     zypprepo: "puppet/zypprepo"
     systemd: "camptocamp/systemd"
     icinga: "icinga/icinga"
-  symlinks:
-    icingaweb2: "#{source_dir}"
+    icinga2: "icinga/icinga2"

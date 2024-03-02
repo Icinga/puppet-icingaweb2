@@ -49,7 +49,7 @@ pdk bundle exec rake beaker
 ```
 
 Run a single test:
-``` 
+```
 cd puppet-icingaweb2
 pdk bundle exec rake beaker:ubuntu-server-1604-x64
 ```

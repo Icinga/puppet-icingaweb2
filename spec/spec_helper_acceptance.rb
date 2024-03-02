@@ -1,50 +1,12 @@
-require 'beaker-rspec'
-require 'beaker/puppet_install_helper'
+# frozen_string_literal: true
 
-# Install Puppet on all hosts
-install_puppet_agent_on(hosts, puppet_collection: 'puppet5')
+require 'voxpupuli/acceptance/spec_helper_acceptance'
 
-RSpec.configure do |c|
-  module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-
-  c.formatter = :documentation
-
-  c.before :suite do
-    # Install module to all hosts
-    hosts.each do |host|
-      install_dev_puppet_module_on(host, source: module_root, module_name: 'icingaweb2',
-                                         target_module_path: '/etc/puppetlabs/code/modules')
-
-      # Install dependencies
-      on(host, puppet('module', 'install', 'puppetlabs-stdlib'))
-      on(host, puppet('module', 'install', 'puppetlabs-concat'))
-      on(host, puppet('module', 'install', 'puppetlabs-vcsrepo'))
-
-      # Install additional modules
-      on(host, puppet('module', 'install', 'puppetlabs-mysql'))
-      on(host, puppet('module', 'install', 'puppetlabs-postgresql'))
-      on(host, puppet('module', 'install', 'puppetlabs-apache'))
-      on(host, puppet('module', 'install', 'puppet-php'))
-
-      if fact('osfamily') == 'Debian'
-        on(host, puppet('module', 'install', 'puppetlabs-apt'))
-      end
-
-      if fact('osfamily') == 'Suse'
-        on(host, puppet('module', 'install', 'puppet-zypprepo'))
-      end
-
-      # Add more setup code as needed
-    end
-  end
-end
-
-shared_examples 'a idempotent resource' do
-  it 'applies with no errors' do
-    apply_manifest(pp, catch_failures: true)
-  end
-
-  it 'applies a second time without changes', :skip_pup_5016 do
-    apply_manifest(pp, catch_changes: true)
-  end
+configure_beaker do |host|
+  install_puppet_module_via_pmt_on(host, 'puppetlabs-mysql')
+  install_puppet_module_via_pmt_on(host, 'puppetlabs-postgresql')
+  install_puppet_module_via_pmt_on(host, 'puppetlabs-apache')
+  install_puppet_module_via_pmt_on(host, 'puppet-php')
+  install_puppet_module_via_pmt_on(host, 'puppetlabs-apt')
+  install_puppet_module_via_pmt_on(host, 'puppet-zypprepo')
 end
